@@ -1,3 +1,7 @@
+# This file should be used as an example/template for building a configuration
+# file.  It is not intended to be the correct configuration for useful Th
+# lamp data.
+
 OctagonSource: Th_gold # Sets the octagon mirror to this source
 WarmUp: 0              # If the lamp is turned on by this script, it will wait
                        #   this many seconds for the lamp to warm up
