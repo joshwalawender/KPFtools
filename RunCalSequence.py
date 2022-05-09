@@ -160,6 +160,16 @@ class WaitForReadout():
         log.info(f"  Waiting for readout to begin")
         kpfexpose = ktl.cache('kpfexpose')
         exptime = kpfexpose['EXPOSURE'].read(binary=True)
+
+#         greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE')
+#         greenexpstate.monitor()
+#         redexpstate = ktl.cache('kpfgreen', 'EXPSTATE')
+#         redexpstate.monitor()
+# 
+#         wait_logic = '($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1)'
+#         ktl.waitFor(wait_logic, timeout=exptime+10)
+
+        # kpfexpose expose keyword
         expose = kpfexpose['EXPOSE']
         expose.monitor()
         expose.waitFor('== 4',timeout=exptime+10)
@@ -188,10 +198,11 @@ class WaitForReadout():
 class WaitForReady():
     '''Waits for the `kpfexpose.EXPOSE` keyword to be "Ready".  This will
     block until the camera is ready for another exposure.  Times out after
-    waiting 60 seconds.
+    waiting for exposure time plus a set buffer time.
     '''
     def __init__(self):
-        pass
+        self.buffer_time = 120 # should be the readout time for the slowest
+                               # detector plus a margin.
 
 
     def pre_condition(self, args):
@@ -201,9 +212,10 @@ class WaitForReady():
     def perform(self, args):
         log.info(f"  Waiting for detectors to be ready")
         kpfexpose = ktl.cache('kpfexpose')
+        exptime = kpfexpose['EXPOSURE'].read(binary=True)
         expose = kpfexpose['EXPOSE']
         expose.monitor()
-        expose.waitFor('== 0',timeout=60)
+        expose.waitFor('== 0',timeout=exptime+self.buffer_time)
 
 
     def post_condition(self, args):
@@ -748,7 +760,7 @@ class RunCalSequence():
 
     def pre_condition(self, args):
         for file in args.files:
-            file = Path(file)
+            file = Path(file).expanduser()
             if file.exists() is False:
                 msg = f"Input file {args.file} does not exist"
                 log.info(msg)
@@ -756,7 +768,8 @@ class RunCalSequence():
 
 
     def perform(self, args):
-        sequences = [yaml.load(open(file)) for file in args.files]
+        files = [Path(file).expanduser() for file in args.files]
+        sequences = [yaml.load(open(file)) for file in files]
         log.info(f"Read {len(sequences)} sequence files")
 
         lamps = set([entry['OctagonSource'] for entry in sequences])
