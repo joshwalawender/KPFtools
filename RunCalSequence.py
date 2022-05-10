@@ -27,6 +27,7 @@ import logging
 from time import sleep
 from pathlib import Path
 import yaml
+import numpy as np
 
 
 KPFError = Exception
@@ -149,7 +150,7 @@ class WaitForReadout():
     the current exposure time plus 10 seconds.
     '''
     def __init__(self):
-        pass
+        self.buffer_time = 10 # Small buffer
 
 
     def pre_condition(self, args):
@@ -157,30 +158,38 @@ class WaitForReadout():
 
 
     def perform(self, args):
-        log.info(f"  Waiting for readout to begin")
         kpfexpose = ktl.cache('kpfexpose')
         exptime = kpfexpose['EXPOSURE'].read(binary=True)
 
-#         greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE')
-#         greenexpstate.monitor()
-#         redexpstate = ktl.cache('kpfgreen', 'EXPSTATE')
-#         redexpstate.monitor()
-# 
-#         wait_logic = '($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1)'
-#         ktl.waitFor(wait_logic, timeout=exptime+10)
+        starting_status = kpfexpose['EXPOSE'].read(binary=True)
+        wait_time = exptime+self.buffer_time if starting_status < 3 else self.buffer_time
 
-        # kpfexpose expose keyword
-        expose = kpfexpose['EXPOSE']
-        expose.monitor()
-        expose.waitFor('== 4',timeout=exptime+10)
+        wait_logic = ('(($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1))'
+                      ' and (($kpfred.EXPSTATE == 4) or ($kpfred.EXPSTATE == 1))'
+                      ' and ($kpfexpose.EXPOSE == 4)')
+        log.info(f"  Waiting ({wait_time:.0f}s max) for readout to begin")
+        ktl.waitFor(wait_logic, timeout=wait_time)
 
 
     def post_condition(self, args):
         kpfexpose = ktl.cache('kpfexpose')
+        detectors = kpfexpose['TRIG_TARG'].read()
+        detector_list = detectors.split(',')
         expose = kpfexpose['EXPOSE']
         status = expose.read()
-        if status != 'Readout':
-            msg = f"Final detector state mismatch: {status} != Readout"
+        greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
+        redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+
+        notok = [(status != 'Readout'),
+                 (greenexpstate == 'Error' and 'Green' in detector_list),
+                 (redexpstate == 'Error' and 'Red' in detector_list),
+                 ]
+        notok = np.array(notok)
+
+        if np.any(notok):
+            msg = (f"Final detector state mismatch: {status} != Readout "
+                   f"(kpfgreen.EXPSTATE = {greenexpstate}, "
+                   f"kpfred.EXPSTATE = {redexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
@@ -210,20 +219,38 @@ class WaitForReady():
 
 
     def perform(self, args):
-        log.info(f"  Waiting for detectors to be ready")
         kpfexpose = ktl.cache('kpfexpose')
         exptime = kpfexpose['EXPOSURE'].read(binary=True)
-        expose = kpfexpose['EXPOSE']
-        expose.monitor()
-        expose.waitFor('== 0',timeout=exptime+self.buffer_time)
+
+        starting_status = kpfexpose['EXPOSE'].read(binary=True)
+        wait_time = exptime+self.buffer_time if starting_status < 3 else self.buffer_time
+
+        wait_logic = ('(($kpfgreen.EXPSTATE == 0) or ($kpfgreen.EXPSTATE == 1))'
+                      ' and (($kpfred.EXPSTATE == 0) or ($kpfred.EXPSTATE == 1))'
+                      ' and ($kpfexpose.EXPOSE == 0)')
+        log.info(f"  Waiting ({wait_time:.0f}s max) for detectors to be ready")
+        ktl.waitFor(wait_logic, timeout=wait_time)
 
 
     def post_condition(self, args):
         kpfexpose = ktl.cache('kpfexpose')
+        detectors = kpfexpose['TRIG_TARG'].read()
+        detector_list = detectors.split(',')
         expose = kpfexpose['EXPOSE']
         status = expose.read()
-        if status != 'Ready':
-            msg = f"Final detector state mismatch: {status} != Ready"
+        greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
+        redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+
+        notok = [(status != 'Ready'),
+                 (greenexpstate == 'Error' and 'Green' in detector_list),
+                 (redexpstate == 'Error' and 'Red' in detector_list),
+                 ]
+        notok = np.array(notok)
+
+        if np.any(notok):
+            msg = (f"Final detector state mismatch: {status} != Ready "
+                   f"(kpfgreen.EXPSTATE = {greenexpstate}, "
+                   f"kpfred.EXPSTATE = {redexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
