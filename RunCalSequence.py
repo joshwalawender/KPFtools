@@ -47,7 +47,7 @@ LogFormat = logging.Formatter('%(asctime)s %(levelname)8s: %(message)s',
 LogConsoleHandler.setFormatter(LogFormat)
 log.addHandler(LogConsoleHandler)
 ## Set up file output
-log_directory = Path('/data/tmp')
+log_directory = Path('/data/logs')
 if log_directory.exists() is True:
     now = datetime.utcnow()
     log_filename = f"RunCalSequence_{now.strftime('%Y-%m-%dT%H:%M:%S')}.log"
