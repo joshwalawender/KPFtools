@@ -107,7 +107,34 @@ class StartExposure():
 
 
     def pre_condition(self, args):
-        pass
+        temperature_tolerance = 1 #degree C
+        kpfexpose = ktl.cache('kpfexpose')
+        detectors = kpfexpose['TRIG_TARG'].read()
+        detector_list = detectors.split(',')
+
+        # Green
+        if 'Green' in detector_list:
+            kpfgreen = ktl.cache('kpfgreen')
+            current = kpfgreen['CURRTEMP'].read(binary=True)
+            setpoint = kpfgreen['TEMPSET'].read(binary=True)
+            diff = abs(current - setpoint)
+            if diff > temperature_tolerance:
+                msg = (f"Green detector temperature out of range: "
+                       f"{current:.1f} != {setpoint:.1f}")
+                log.error(msg)
+                raise KPFError(msg)
+
+        # Red
+        if 'Red' in detector_list:
+            kpfred = ktl.cache('kpfred')
+            current = kpfred['CURRTEMP'].read(binary=True)
+            setpoint = kpfred['TEMPSET'].read(binary=True)
+            diff = abs(current - setpoint)
+            if diff > temperature_tolerance:
+                msg = (f"Red detector temperature out of range: "
+                       f"{current:.1f} != {setpoint:.1f}")
+                log.error(msg)
+                raise KPFError(msg)
 
 
     def perform(self, args):
@@ -695,7 +722,7 @@ class SetSourceSelectShutters():
 ##-------------------------------------------------------------------------
 class SetTimedShutters():
     '''Selects which timed shutters will be triggered by setting the
-    `kpfexpose.TIMED_SHUTTERS` keyword value.
+    `kpfexpose.TIMED_TARG` keyword value.
     '''
     def __init__(self):
         pass
@@ -720,12 +747,12 @@ class SetTimedShutters():
         timed_shutters_string = ','.join(timed_shutters_list)
         log.info(f"  Setting timed shutters to '{timed_shutters_string}'")
         kpfexpose = ktl.cache('kpfexpose')
-        kpfexpose['TIMED_SHUTTERS'].write(timed_shutters_string)
+        kpfexpose['TIMED_TARG'].write(timed_shutters_string)
 
 
     def post_condition(self, args):
         kpfexpose = ktl.cache('kpfexpose')
-        shutters = kpfexpose['TIMED_SHUTTERS'].read()
+        shutters = kpfexpose['TIMED_TARG'].read()
         shutter_list = shutters.split(',')
 
         Scrambler_shutter_status = 'Scrambler' in shutter_list
