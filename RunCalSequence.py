@@ -24,6 +24,7 @@ import ktl
 
 import argparse
 import logging
+from datetime import datetime
 from time import sleep
 from pathlib import Path
 import yaml
@@ -46,11 +47,15 @@ LogFormat = logging.Formatter('%(asctime)s %(levelname)8s: %(message)s',
 LogConsoleHandler.setFormatter(LogFormat)
 log.addHandler(LogConsoleHandler)
 ## Set up file output
-# LogFileName = None
-# LogFileHandler = logging.FileHandler(LogFileName)
-# LogFileHandler.setLevel(logging.DEBUG)
-# LogFileHandler.setFormatter(LogFormat)
-# log.addHandler(LogFileHandler)
+log_directory = Path('/data/tmp')
+if log_directory.exists() is True:
+    now = datetime.utcnow()
+    log_filename = f"RunCalSequence_{now.strftime('%Y-%m-%dT%H:%M:%S')}.log"
+    LogFileName = log_directory / log_filename
+    LogFileHandler = logging.FileHandler(LogFileName)
+    LogFileHandler.setLevel(logging.DEBUG)
+    LogFileHandler.setFormatter(LogFormat)
+    log.addHandler(LogFileHandler)
 
 
 ##-------------------------------------------------------------------------
