@@ -33,6 +33,21 @@ import numpy as np
 
 KPFError = Exception
 
+# added by Andrew for Slack integration
+import os
+#from slackclient import SlackClient
+SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+#slack_client = SlackClient(SLACK_BOT_TOKEN)
+
+def send_message(channel_id, message):
+    slack_client.api_call(
+        "chat.postMessage",
+        channel=channel_id,
+        text=message,
+        username='KPFbot',
+        icon_emoji=':robot_face:'
+    )
+
 
 ##-------------------------------------------------------------------------
 ## Create logger object
@@ -72,7 +87,7 @@ def check_green_detector_temperature(temperature_tolerance=1):
         log.error(msg)
         raise KPFError(msg)
     else:
-        log.info(f'Green detector temperature ok')
+        log.info(f'Green detector temperature ok (diff={diff:.3f} C)')
 
 
 def check_red_detector_temperature(temperature_tolerance=1):
@@ -86,7 +101,7 @@ def check_red_detector_temperature(temperature_tolerance=1):
         log.error(msg)
         raise KPFError(msg)
     else:
-        log.info(f'Red detector temperature ok')
+        log.info(f'Red detector temperature ok (diff={diff:.3f} C)')
 
 
 ##-------------------------------------------------------------------------
@@ -158,6 +173,7 @@ class StartExposure():
             log.info(f"  Detector(s) are currently {expose} waiting for Ready")
             expose.waitFor('== 0',timeout=300)
         log.info(f"  Beginning Exposure")
+
         expose.write('Start')
 
 
@@ -587,7 +603,11 @@ class SetTriggeredDetectors():
 
 
     def pre_condition(self, args):
-        pass
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        if expose.read(binary=True) != 0:
+            wfready = WaitForReady()
+            wfready.execute({})
 
 
     def perform(self, args):
@@ -742,7 +762,11 @@ class SetTimedShutters():
 
 
     def pre_condition(self, args):
-        pass
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        if expose.read(binary=True) != 0:
+            wfready = WaitForReady()
+            wfready.execute({})
 
 
     def perform(self, args):
