@@ -74,6 +74,37 @@ if log_directory.exists() is True:
 
 
 ##-------------------------------------------------------------------------
+## Pre- or Post- Conditions
+##-------------------------------------------------------------------------
+def check_green_detector_temperature(temperature_tolerance=1):
+    kpfgreen = ktl.cache('kpfgreen')
+    current = kpfgreen['CURRTEMP'].read(binary=True)
+    setpoint = kpfgreen['TEMPSET'].read(binary=True)
+    diff = abs(current - setpoint)
+    if diff > temperature_tolerance:
+        msg = (f"Green detector temperature out of range: "
+               f"{current:.1f} != {setpoint:.1f}")
+        log.error(msg)
+        raise KPFError(msg)
+    else:
+        log.info(f'Green detector temperature ok (diff={diff:.3f} C)')
+
+
+def check_red_detector_temperature(temperature_tolerance=1):
+    kpfred = ktl.cache('kpfred')
+    current = kpfred['CURRTEMP'].read(binary=True)
+    setpoint = kpfred['TEMPSET'].read(binary=True)
+    diff = abs(current - setpoint)
+    if diff > temperature_tolerance:
+        msg = (f"Red detector temperature out of range: "
+               f"{current:.1f} != {setpoint:.1f}")
+        log.error(msg)
+        raise KPFError(msg)
+    else:
+        log.info(f'Red detector temperature ok (diff={diff:.3f} C)')
+
+
+##-------------------------------------------------------------------------
 ## SetExptime
 ##-------------------------------------------------------------------------
 class SetExptime():
@@ -127,34 +158,11 @@ class StartExposure():
 
 
     def pre_condition(self, args):
-        temperature_tolerance = 1 #degree C
         kpfexpose = ktl.cache('kpfexpose')
         detectors = kpfexpose['TRIG_TARG'].read()
         detector_list = detectors.split(',')
-
-        # Green
-        if 'Green' in detector_list:
-            kpfgreen = ktl.cache('kpfgreen')
-            current = kpfgreen['CURRTEMP'].read(binary=True)
-            setpoint = kpfgreen['TEMPSET'].read(binary=True)
-            diff = abs(current - setpoint)
-            if diff > temperature_tolerance:
-                msg = (f"Green detector temperature out of range: "
-                       f"{current:.1f} != {setpoint:.1f}")
-                log.error(msg)
-                raise KPFError(msg)
-
-        # Red
-        if 'Red' in detector_list:
-            kpfred = ktl.cache('kpfred')
-            current = kpfred['CURRTEMP'].read(binary=True)
-            setpoint = kpfred['TEMPSET'].read(binary=True)
-            diff = abs(current - setpoint)
-            if diff > temperature_tolerance:
-                msg = (f"Red detector temperature out of range: "
-                       f"{current:.1f} != {setpoint:.1f}")
-                log.error(msg)
-                raise KPFError(msg)
+        if 'Green' in detector_list: check_green_detector_temperature()
+        if 'Red' in detector_list: check_red_detector_temperature()
 
 
     def perform(self, args):
@@ -165,6 +173,7 @@ class StartExposure():
             log.info(f"  Detector(s) are currently {expose} waiting for Ready")
             expose.waitFor('== 0',timeout=300)
         log.info(f"  Beginning Exposure")
+
         expose.write('Start')
 
 
@@ -594,7 +603,11 @@ class SetTriggeredDetectors():
 
 
     def pre_condition(self, args):
-        pass
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        if expose.read(binary=True) != 0:
+            wfready = WaitForReady()
+            wfready.execute({})
 
 
     def perform(self, args):
@@ -749,7 +762,11 @@ class SetTimedShutters():
 
 
     def pre_condition(self, args):
-        pass
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        if expose.read(binary=True) != 0:
+            wfready = WaitForReady()
+            wfready.execute({})
 
 
     def perform(self, args):
