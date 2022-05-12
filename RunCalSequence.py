@@ -33,6 +33,21 @@ import numpy as np
 
 KPFError = Exception
 
+# added by Andrew for Slack integration
+import os
+#from slackclient import SlackClient
+SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+#slack_client = SlackClient(SLACK_BOT_TOKEN)
+
+def send_message(channel_id, message):
+    slack_client.api_call(
+        "chat.postMessage",
+        channel=channel_id,
+        text=message,
+        username='KPFbot',
+        icon_emoji=':robot_face:'
+    )
+
 
 ##-------------------------------------------------------------------------
 ## Create logger object
