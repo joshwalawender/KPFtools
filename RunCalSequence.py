@@ -663,24 +663,24 @@ class SetTriggeredDetectors():
         red_status = 'Red' in detector_list
         red_target = args.get('TriggerRed', False)
         if red_target != red_status:
-            msg = (f"Final Red detector trigger mismatch: "
-                   f"{red_status} != {red_target}")
+            msg = (f"Final Red detector trigger mismatch: status "
+                   f"'{red_status}' != input '{red_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         green_status = 'Green' in detector_list
         green_target = args.get('TriggerGreen', False)
         if green_target != green_status:
-            msg = (f"Final Green detector trigger mismatch: "
-                   f"{green_status} != {green_target}")
+            msg = (f"Final Green detector trigger mismatch: status "
+                   f"'{green_status}' != input '{green_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         CaHK_status = 'Ca_HK' in detector_list
         CaHK_target = args.get('TriggerCaHK', False)
         if CaHK_target != CaHK_status:
-            msg = (f"Final Ca HK detector trigger mismatch: "
-                   f"{CaHK_status} != {CaHK_target}")
+            msg = (f"Final Ca HK detector trigger mismatch: status "
+                   f"'{CaHK_status}' != input '{CaHK_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -734,40 +734,40 @@ class SetSourceSelectShutters():
         sci_shutter_status = 'SciSelect' in shutter_list
         sci_shutter_target = args.get('SSS_Science', False)
         if sci_shutter_target != sci_shutter_status:
-            msg = (f"Final Science select shutter mismatch: "
-                   f"{sci_shutter_status} != {sci_shutter_target}")
+            msg = (f"Final Science select shutter mismatch: status "
+                   f"'{sci_shutter_status}' != input '{sci_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         sky_shutter_status = 'SkySelect' in shutter_list
         sky_shutter_target = args.get('SSS_Sky', False)
         if sky_shutter_target != sky_shutter_status:
-            msg = (f"Final Sky select shutter mismatch: "
-                   f"{sky_shutter_status} != {sky_shutter_target}")
+            msg = (f"Final Sky select shutter mismatch: status "
+                   f"'{sky_shutter_status}' != input '{sky_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         socalsci_shutter_status = 'SoCalSci' in shutter_list
         socalsci_shutter_target = args.get('SSS_SoCalSci', False)
         if socalsci_shutter_target != socalsci_shutter_status:
-            msg = (f"Final SoCalSci select shutter mismatch: "
-                   f"{socalsci_shutter_status} != {socalsci_shutter_target}")
+            msg = (f"Final SoCalSci select shutter mismatch: status "
+                   f"'{socalsci_shutter_status}' != input '{socalsci_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         socalcal_shutter_status = 'SoCalCal' in shutter_list
         socalcal_shutter_target = args.get('SSS_SoCalCal', False)
         if socalcal_shutter_target != socalcal_shutter_status:
-            msg = (f"Final SoCalCal select shutter mismatch: "
-                   f"{socalcal_shutter_status} != {socalcal_shutter_target}")
+            msg = (f"Final SoCalCal select shutter mismatch: status "
+                   f"'{socalcal_shutter_status}' != input '{socalcal_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         calscisky_shutter_status = 'Cal_SciSky' in shutter_list
         calscisky_shutter_target = args.get('SSS_CalSciSky', False)
         if calscisky_shutter_target != calscisky_shutter_status:
-            msg = (f"Final Cal_SciSky select shutter mismatch: "
-                   f"{calscisky_shutter_status} != {calscisky_shutter_target}")
+            msg = (f"Final Cal_SciSky select shutter mismatch: status "
+                   f"'{calscisky_shutter_status}' != input '{calscisky_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -825,32 +825,32 @@ class SetTimedShutters():
         Scrambler_shutter_status = 'Scrambler' in shutter_list
         Scrambler_shutter_target = args.get('TS_Scrambler', False)
         if Scrambler_shutter_target != Scrambler_shutter_status:
-            msg = (f"Final Scrambler timed shutter mismatch: "
-                   f"{Scrambler_shutter_status} != {Scrambler_shutter_target}")
+            msg = (f"Final Scrambler timed shutter mismatch: status "
+                   f"'{Scrambler_shutter_status}' != input '{Scrambler_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         SimulCal_shutter_status = 'SimulCal' in shutter_list
         SimulCal_shutter_target = args.get('TS_SimulCal', False)
         if SimulCal_shutter_target != SimulCal_shutter_status:
-            msg = (f"Final SimulCal timed shutter mismatch: "
-                   f"{SimulCal_shutter_status} != {SimulCal_shutter_target}")
+            msg = (f"Final SimulCal timed shutter mismatch: status "
+                   f"'{SimulCal_shutter_status}' != input '{SimulCal_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         FF_Fiber_shutter_status = 'FF_Fiber' in shutter_list
         FF_Fiber_shutter_target = args.get('TS_FF_Fiber', False)
         if FF_Fiber_shutter_target != FF_Fiber_shutter_status:
-            msg = (f"Final FF_Fiber timed shutter mismatch: "
-                   f"{FF_Fiber_shutter_status} != {FF_Fiber_shutter_target}")
+            msg = (f"Final FF_Fiber timed shutter mismatch: status "
+                   f"'{FF_Fiber_shutter_status}' != input '{FF_Fiber_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
         Ca_HK_shutter_status = 'Ca_HK' in shutter_list
         CA_HK_shutter_target = args.get('TS_CaHK', False)
         if CA_HK_shutter_target != Ca_HK_shutter_status:
-            msg = (f"Final Ca_HK timed shutter mismatch: "
-                   f"{Ca_HK_shutter_status} != {CA_HK_shutter_target}")
+            msg = (f"Final Ca_HK timed shutter mismatch: status "
+                   f"'{Ca_HK_shutter_status}' != input '{CA_HK_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
