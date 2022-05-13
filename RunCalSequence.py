@@ -751,7 +751,8 @@ class SetSourceSelectShutters():
         socalsci_shutter_target = args.get('SSS_SoCalSci', False)
         if socalsci_shutter_target != socalsci_shutter_status:
             msg = (f"Final SoCalSci select shutter mismatch: status "
-                   f"'{socalsci_shutter_status}' != input '{socalsci_shutter_target}'")
+                   f"'{socalsci_shutter_status}' != input "
+                   f"'{socalsci_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -759,7 +760,8 @@ class SetSourceSelectShutters():
         socalcal_shutter_target = args.get('SSS_SoCalCal', False)
         if socalcal_shutter_target != socalcal_shutter_status:
             msg = (f"Final SoCalCal select shutter mismatch: status "
-                   f"'{socalcal_shutter_status}' != input '{socalcal_shutter_target}'")
+                   f"'{socalcal_shutter_status}' != input "
+                   f"'{socalcal_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -767,7 +769,8 @@ class SetSourceSelectShutters():
         calscisky_shutter_target = args.get('SSS_CalSciSky', False)
         if calscisky_shutter_target != calscisky_shutter_status:
             msg = (f"Final Cal_SciSky select shutter mismatch: status "
-                   f"'{calscisky_shutter_status}' != input '{calscisky_shutter_target}'")
+                   f"'{calscisky_shutter_status}' != input "
+                   f"'{calscisky_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -826,7 +829,8 @@ class SetTimedShutters():
         Scrambler_shutter_target = args.get('TS_Scrambler', False)
         if Scrambler_shutter_target != Scrambler_shutter_status:
             msg = (f"Final Scrambler timed shutter mismatch: status "
-                   f"'{Scrambler_shutter_status}' != input '{Scrambler_shutter_target}'")
+                   f"'{Scrambler_shutter_status}' != input "
+                   f"'{Scrambler_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -834,7 +838,8 @@ class SetTimedShutters():
         SimulCal_shutter_target = args.get('TS_SimulCal', False)
         if SimulCal_shutter_target != SimulCal_shutter_status:
             msg = (f"Final SimulCal timed shutter mismatch: status "
-                   f"'{SimulCal_shutter_status}' != input '{SimulCal_shutter_target}'")
+                   f"'{SimulCal_shutter_status}' != input "
+                   f"'{SimulCal_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -842,7 +847,8 @@ class SetTimedShutters():
         FF_Fiber_shutter_target = args.get('TS_FF_Fiber', False)
         if FF_Fiber_shutter_target != FF_Fiber_shutter_status:
             msg = (f"Final FF_Fiber timed shutter mismatch: status "
-                   f"'{FF_Fiber_shutter_status}' != input '{FF_Fiber_shutter_target}'")
+                   f"'{FF_Fiber_shutter_status}' != input "
+                   f"'{FF_Fiber_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
@@ -850,7 +856,8 @@ class SetTimedShutters():
         CA_HK_shutter_target = args.get('TS_CaHK', False)
         if CA_HK_shutter_target != Ca_HK_shutter_status:
             msg = (f"Final Ca_HK timed shutter mismatch: status "
-                   f"'{Ca_HK_shutter_status}' != input '{CA_HK_shutter_target}'")
+                   f"'{Ca_HK_shutter_status}' != input "
+                   f"'{CA_HK_shutter_target}'")
             log.error(msg)
             raise KPFError(msg)
 
