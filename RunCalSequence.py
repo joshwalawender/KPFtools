@@ -130,6 +130,20 @@ def check_red_detector_temperature(temperature_tolerance=1):
         log.info(f'Red detector temperature ok (diff={diff:.3f} C)')
 
 
+def check_cahk_detector_temperature(temperature_tolerance=1):
+    kpfhk = ktl.cache('kpf_hk')
+    current = kpfhk['CURRTEMP'].read(binary=True)
+    setpoint = kpfhk['COOLTARG'].read(binary=True)
+    diff = abs(current - setpoint)
+    if diff > temperature_tolerance:
+        msg = (f"Ca H&K detector temperature out of range: "
+               f"{current:.1f} != {setpoint:.1f}")
+        log.error(msg)
+        raise KPFError(msg)
+    else:
+        log.info(f'Ca H&K detector temperature ok (diff={diff:.3f} C)')
+
+
 ##-------------------------------------------------------------------------
 ## SetExptime
 ##-------------------------------------------------------------------------
