@@ -207,6 +207,8 @@ class StartExposure():
         if 'Red' in detector_list:
             check_red_detector_power()
             check_red_detector_temperature()
+        if 'Ca_HK' in detector_list:
+            check_cahk_detector_temperature()
 
 
     def perform(self, args):
