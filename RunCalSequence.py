@@ -247,12 +247,26 @@ class WaitForReadout():
         kpfexpose = ktl.cache('kpfexpose')
         exptime = kpfexpose['EXPOSURE'].read(binary=True)
 
+        detectors = kpfexpose['TRIG_TARG'].read()
+        detector_list = detectors.split(',')
+
         starting_status = kpfexpose['EXPOSE'].read(binary=True)
         wait_time = exptime+self.buffer_time if starting_status < 3 else self.buffer_time
 
-        wait_logic = ('(($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1))'
-                      ' and (($kpfred.EXPSTATE == 4) or ($kpfred.EXPSTATE == 1))'
-                      ' and ($kpfexpose.EXPOSE == 4)')
+        wait_logic = ''
+        if 'Green' in detector_list:
+            wait_logic += '(($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1))'
+        if 'Red' in detector_list:
+            if len(wait_logic) > 0: 
+                wait_logic +=' and '
+            wait_logic += '(($kpfred.EXPSTATE == 4) or ($kpfred.EXPSTATE == 1))'
+        if len(wait_logic) > 0: 
+            wait_logic +=' and '
+        wait_logic += '($kpfexpose.EXPOSE == 4)'
+        log.debug(f"  Wait Logic: {wait_logic}")
+#         wait_logic = ('(($kpfgreen.EXPSTATE == 4) or ($kpfgreen.EXPSTATE == 1))'
+#                       ' and (($kpfred.EXPSTATE == 4) or ($kpfred.EXPSTATE == 1))'
+#                       ' and ($kpfexpose.EXPOSE == 4)')
         log.info(f"  Waiting ({wait_time:.0f}s max) for readout to begin")
         ktl.waitFor(wait_logic, timeout=wait_time)
 
@@ -266,7 +280,7 @@ class WaitForReadout():
         greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
         redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
 
-        notok = [(status != 'Readout'),
+        notok = [(status in ['Readout', 'Ready']),
                  (greenexpstate == 'Error' and 'Green' in detector_list),
                  (redexpstate == 'Error' and 'Red' in detector_list),
                  ]
