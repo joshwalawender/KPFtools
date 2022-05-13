@@ -76,6 +76,32 @@ if log_directory.exists() is True:
 ##-------------------------------------------------------------------------
 ## Pre- or Post- Conditions
 ##-------------------------------------------------------------------------
+def check_green_detector_power():
+    kpfgreen = ktl.cache('kpfgreen')
+    ccdpower = kpfgreen['CCDPOWER'].read()
+    powersupply = kpfgreen['POWERSUPPLY'].read()
+    if ccdpower in ['Intermediate', 'Standby']:
+        log.warning(f"  Green detector: CCDPOWER = {ccdpower}")
+    if ccdpower in ['Unknown', 'Off'] or powersupply == 'NotOK':
+        msg = (f"Green detector: CCDPOWER = {ccdpower}, "
+               f"POWERSUPPLY = {powersupply}")
+        log.error(msg)
+        raise KPFError(msg)
+
+
+def check_red_detector_power():
+    kpfred = ktl.cache('kpfgreen')
+    ccdpower = kpfred['CCDPOWER'].read()
+    powersupply = kpfred['POWERSUPPLY'].read()
+    if ccdpower in ['Intermediate', 'Standby']:
+        log.warning(f"  Red detector: CCDPOWER = {ccdpower}")
+    if ccdpower in ['Unknown', 'Off'] or powersupply == 'NotOK':
+        msg = (f"Red detector: CCDPOWER = {ccdpower}, "
+               f"POWERSUPPLY = {powersupply}")
+        log.error(msg)
+        raise KPFError(msg)
+
+
 def check_green_detector_temperature(temperature_tolerance=1):
     kpfgreen = ktl.cache('kpfgreen')
     current = kpfgreen['CURRTEMP'].read(binary=True)
@@ -161,8 +187,12 @@ class StartExposure():
         kpfexpose = ktl.cache('kpfexpose')
         detectors = kpfexpose['TRIG_TARG'].read()
         detector_list = detectors.split(',')
-        if 'Green' in detector_list: check_green_detector_temperature()
-        if 'Red' in detector_list: check_red_detector_temperature()
+        if 'Green' in detector_list:
+            check_green_detector_power()
+            check_green_detector_temperature()
+        if 'Red' in detector_list:
+            check_red_detector_power()
+            check_red_detector_temperature()
 
 
     def perform(self, args):
