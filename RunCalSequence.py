@@ -260,6 +260,10 @@ class WaitForReadout():
             if len(wait_logic) > 0: 
                 wait_logic +=' and '
             wait_logic += '(($kpfred.EXPSTATE == 4) or ($kpfred.EXPSTATE == 1))'
+        if 'Ca_HK' in detector_list:
+            if len(wait_logic) > 0: 
+                wait_logic +=' and '
+            wait_logic += '(($kpf_hk.EXPSTATE == 4) or ($kpf_hk.EXPSTATE == 1))'
         if len(wait_logic) > 0: 
             wait_logic +=' and '
         wait_logic += '($kpfexpose.EXPOSE == 4)'
@@ -279,10 +283,12 @@ class WaitForReadout():
         status = expose.read()
         greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
         redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+        cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
 
-        notok = [(status in ['Readout', 'Ready']),
+        notok = [(status not in ['Readout', 'Ready']),
                  (greenexpstate == 'Error' and 'Green' in detector_list),
                  (redexpstate == 'Error' and 'Red' in detector_list),
+                 (cahkexpstate == 'Error' and 'Ca_HK' in detector_list),
                  ]
         log.debug(f"    notok: {notok}")
         notok = np.array(notok)
@@ -290,7 +296,8 @@ class WaitForReadout():
         if np.any(notok):
             msg = (f"Final detector state mismatch: {status} != Readout "
                    f"(kpfgreen.EXPSTATE = {greenexpstate}, "
-                   f"kpfred.EXPSTATE = {redexpstate})")
+                   f"kpfred.EXPSTATE = {redexpstate}, "
+                   f"kpf_hk.EXPSTATE = {cahkexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
@@ -336,6 +343,10 @@ class WaitForReady():
             if len(wait_logic) > 0: 
                 wait_logic +=' and '
             wait_logic += '(($kpfred.EXPSTATE == 0) or ($kpfred.EXPSTATE == 1))'
+        if 'Ca_HK' in detector_list:
+            if len(wait_logic) > 0: 
+                wait_logic +=' and '
+            wait_logic += '(($kpf_hk.EXPSTATE == 0) or ($kpf_hk.EXPSTATE == 1))'
         if len(wait_logic) > 0: 
             wait_logic +=' and '
         wait_logic += '($kpfexpose.EXPOSE == 0)'
@@ -352,10 +363,12 @@ class WaitForReady():
         status = expose.read()
         greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
         redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+        cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
 
         notok = [(status != 'Ready'),
                  (greenexpstate == 'Error' and 'Green' in detector_list),
                  (redexpstate == 'Error' and 'Red' in detector_list),
+                 (cahkexpstate == 'Error' and 'Ca_HK' in detector_list),
                  ]
         log.debug(f"    notok: {notok}")
         notok = np.array(notok)
@@ -363,7 +376,8 @@ class WaitForReady():
         if np.any(notok):
             msg = (f"Final detector state mismatch: {status} != Ready "
                    f"(kpfgreen.EXPSTATE = {greenexpstate}, "
-                   f"kpfred.EXPSTATE = {redexpstate})")
+                   f"kpfred.EXPSTATE = {redexpstate}, "
+                   f"kpf_hk.EXPSTATE = {cahkexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
