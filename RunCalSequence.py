@@ -414,7 +414,9 @@ class RecoverDetectors():
     Clear the triggered cameras list, so that step 2 will work.
     Reset kpfexpose if it’s not ‘Ready’
     Re-add the green and red cameras.
-    Take a short exposure.  It will likely fail, but the Archons & camerad’s will see all the right commands and triggers in the right order, and will then be in the correct state to start the next exposure.
+    Take a short exposure.  It will likely fail, but the Archons & camerad’s
+    will see all the right commands and triggers in the right order, and will
+    then be in the correct state to start the next exposure.
     '''
     def __init__(self):
         pass
