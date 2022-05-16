@@ -406,6 +406,61 @@ class WaitForReady():
 
 
 ##-------------------------------------------------------------------------
+## RecoverDetectors
+##-------------------------------------------------------------------------
+class RecoverDetectors():
+    '''
+    Updated recommendation for recovery:
+    Clear the triggered cameras list, so that step 2 will work.
+    Reset kpfexpose if it’s not ‘Ready’
+    Re-add the green and red cameras.
+    Take a short exposure.  It will likely fail, but the Archons & camerad’s will see all the right commands and triggers in the right order, and will then be in the correct state to start the next exposure.
+    '''
+    def __init__(self):
+        pass
+
+
+    def pre_condition(self, args):
+        kpfexpose = ktl.cache('kpfexpose')
+        detectors = kpfexpose['TRIG_TARG'].read()
+        detector_list = detectors.split(',')
+        if 'Green' in detector_list:
+            check_green_detector_power()
+            check_green_detector_temperature()
+        if 'Red' in detector_list:
+            check_red_detector_power()
+            check_red_detector_temperature()
+        if 'Ca_HK' in detector_list:
+            check_cahk_detector_temperature()
+
+
+    def perform(self, args):
+        # 1) Clear the triggered cameras list, so that step 2 will work.
+        settriggered = SetTriggeredDetectors()
+        settriggered.execute({})
+        # 2) Reset kpfexpose if it’s not ‘Ready’
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        expose.write('Reset')
+
+
+    def post_condition(self, args):
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        exposestatus = expose.read()
+        if exposestatus != 'Ready':
+            msg = (f"kpfexpose.EXPOSE: {exposestatus} != Ready")
+            log.error(msg)
+            raise KPFError(msg)
+
+
+    def execute(self, args):
+        self.pre_condition(args)
+        self.perform(args)
+        self.post_condition(args)
+
+
+##-------------------------------------------------------------------------
 ## PowerOnCalSource
 ##-------------------------------------------------------------------------
 class PowerOnCalSource():
