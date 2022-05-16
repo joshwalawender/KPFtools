@@ -137,7 +137,7 @@ def check_cahk_detector_temperature(temperature_tolerance=1):
     diff = abs(current - setpoint)
     if diff > temperature_tolerance:
         msg = (f"Ca H&K detector temperature out of range: "
-               f"{current:.1f} != {setpoint:.1f}")
+               f"{current:.1f} C != {setpoint:.1f} C")
         log.error(msg)
         raise KPFError(msg)
     else:
