@@ -837,7 +837,10 @@ class SetSourceSelectShutters():
         shutters_string = ','.join(shutter_list)
         log.info(f"  Setting source select shutters to '{shutters_string}'")
         kpfexpose = ktl.cache('kpfexpose')
-        kpfexpose['SRC_SHUTTERS'].write(shutters_string)
+        if shutters_string == '':
+            kpfexpose['SRC_SHUTTERS'].write(0)
+        else:
+            kpfexpose['SRC_SHUTTERS'].write(shutters_string)
 
 
     def post_condition(self, args):
