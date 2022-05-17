@@ -819,7 +819,11 @@ class SetSourceSelectShutters():
 
 
     def pre_condition(self, args):
-        pass
+        kpfexpose = ktl.cache('kpfexpose')
+        expose = kpfexpose['EXPOSE']
+        if expose.read(binary=True) != 0:
+            wfready = WaitForReady()
+            wfready.execute({})
 
 
     def perform(self, args):
