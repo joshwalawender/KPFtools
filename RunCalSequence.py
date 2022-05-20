@@ -297,23 +297,26 @@ class WaitForReadout():
         detector_list = detectors.split(',')
         expose = kpfexpose['EXPOSE']
         status = expose.read()
-        greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
-        redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
-        cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
-
-        notok = [(status not in ['Readout', 'Ready']),
-                 (greenexpstate == 'Error' and 'Green' in detector_list),
-                 (redexpstate == 'Error' and 'Red' in detector_list),
-                 (cahkexpstate == 'Error' and 'Ca_HK' in detector_list),
-                 ]
+        
+        notok = [(status not in ['Readout', 'Ready'])]
+        msg = f"Final detector state mismatch: {status} != Readout ("
+        if 'Green' in detector_list:
+            greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
+            notok.append(greenexpstate == 'Error')
+            msg += f"kpfgreen.EXPSTATE = {greenexpstate} "
+        if 'Red' in detector_list:
+            redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+            notok.append(redexpstate == 'Error')
+            msg += f"kpfred.EXPSTATE = {redexpstate} "
+        if 'Ca_HK' in detector_list:
+            cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
+            notok.append(cahkexpstate == 'Error')
+            msg += f"kpf_hk.EXPSTATE = {cahkexpstate} "
+        msg += ')'
         log.debug(f"    notok: {notok}")
         notok = np.array(notok)
 
         if np.any(notok):
-            msg = (f"Final detector state mismatch: {status} != Readout "
-                   f"(kpfgreen.EXPSTATE = {greenexpstate}, "
-                   f"kpfred.EXPSTATE = {redexpstate}, "
-                   f"kpf_hk.EXPSTATE = {cahkexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
@@ -377,23 +380,26 @@ class WaitForReady():
         detector_list = detectors.split(',')
         expose = kpfexpose['EXPOSE']
         status = expose.read()
-        greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
-        redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
-        cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
 
-        notok = [(status != 'Ready'),
-                 (greenexpstate == 'Error' and 'Green' in detector_list),
-                 (redexpstate == 'Error' and 'Red' in detector_list),
-                 (cahkexpstate == 'Error' and 'Ca_HK' in detector_list),
-                 ]
+        notok = [(status != 'Ready')]
+        msg = f"Final detector state mismatch: {status} != Ready ("
+        if 'Green' in detector_list:
+            greenexpstate = ktl.cache('kpfgreen', 'EXPSTATE').read()
+            notok.append(greenexpstate == 'Error')
+            msg += f"kpfgreen.EXPSTATE = {greenexpstate} "
+        if 'Red' in detector_list:
+            redexpstate = ktl.cache('kpfred', 'EXPSTATE').read()
+            notok.append(redexpstate == 'Error')
+            msg += f"kpfred.EXPSTATE = {redexpstate} "
+        if 'Ca_HK' in detector_list:
+            cahkexpstate = ktl.cache('kpf_hk', 'EXPSTATE').read()
+            notok.append(cahkexpstate == 'Error')
+            msg += f"kpf_hk.EXPSTATE = {cahkexpstate} "
+        msg += ')'
         log.debug(f"    notok: {notok}")
         notok = np.array(notok)
 
         if np.any(notok):
-            msg = (f"Final detector state mismatch: {status} != Ready "
-                   f"(kpfgreen.EXPSTATE = {greenexpstate}, "
-                   f"kpfred.EXPSTATE = {redexpstate}, "
-                   f"kpf_hk.EXPSTATE = {cahkexpstate})")
             log.error(msg)
             raise KPFError(msg)
         log.info('    Done')
